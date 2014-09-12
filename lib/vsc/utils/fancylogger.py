@@ -333,10 +333,12 @@ def getLogger(name=None, fname=False, clsname=False, fancyrecord=None):
     This can make your code a lot slower, so this can be dissabled by setting fancyrecord to False, and
     will also be disabled if a Name is set, and fancyrecord is not set to True
     """
-    nameparts = [getRootLoggerName()]
+    nameparts = []
 
     if name:
         nameparts.append(name)
+    else:
+        nameparts.append(getRootLoggerName())
     elif fancyrecord is None or fancyrecord:  # only be fancy if fancyrecord is True or no name is given
         fancyrecord = True
     fancyrecord = bool(fancyrecord)  # make sure fancyrecord is a nice bool, not None
@@ -351,9 +353,11 @@ def getLogger(name=None, fname=False, clsname=False, fancyrecord=None):
     l.fancyrecord = fancyrecord
     if os.environ.get('FANCYLOGGER_GETLOGGER_DEBUG', '0').lower() in ('1', 'yes', 'true', 'y'):
         print 'FANCYLOGGER_GETLOGGER_DEBUG',
+        print "getRootLoggerName: ", getRootLoggerName()
         print 'name', name, 'fname', fname, 'fullname', fullname,
         print 'parent_info verbose'
-        print "\n".join(l.get_parent_info("FANCYLOGGER_GETLOGGER_DEBUG"))
+        if hasattr(l, 'get_parent_info'):
+            print "\n".join(l.get_parent_info("FANCYLOGGER_GETLOGGER_DEBUG"))
         sys.stdout.flush()
     return l
 
@@ -683,8 +687,8 @@ def enableDefaultHandlers():
 def getDetailsLogLevels(fancy=True):
     """
     Return list of (name,loglevelname) pairs of existing loggers
-    
-    @param fancy: if True, returns only Fancylogger; if False, returns non-FancyLoggers, 
+
+    @param fancy: if True, returns only Fancylogger; if False, returns non-FancyLoggers,
                   anything else, return all loggers
     """
     func_map = {
