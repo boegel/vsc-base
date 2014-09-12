@@ -324,7 +324,7 @@ def thread_name():
     return threading.currentThread().getName()
 
 
-def getLogger(name=None, fname=True, clsname=False, fancyrecord=None):
+def getLogger(name=None, fname=False, clsname=False, fancyrecord=None):
     """
     returns a fancylogger
     if fname is True, the loggers name will be 'name[.classname].functionname'
@@ -333,7 +333,7 @@ def getLogger(name=None, fname=True, clsname=False, fancyrecord=None):
     This can make your code a lot slower, so this can be dissabled by setting fancyrecord to False, and
     will also be disabled if a Name is set, and fancyrecord is not set to True
     """
-    nameparts = [getRootLoggerName()]
+    nameparts = []
 
     if name:
         nameparts.append(name)
@@ -351,9 +351,11 @@ def getLogger(name=None, fname=True, clsname=False, fancyrecord=None):
     l.fancyrecord = fancyrecord
     if os.environ.get('FANCYLOGGER_GETLOGGER_DEBUG', '0').lower() in ('1', 'yes', 'true', 'y'):
         print 'FANCYLOGGER_GETLOGGER_DEBUG',
+        print "getRootLoggerName: ", getRootLoggerName()
         print 'name', name, 'fname', fname, 'fullname', fullname,
         print 'parent_info verbose'
-        print "\n".join(l.get_parent_info("FANCYLOGGER_GETLOGGER_DEBUG"))
+        if hasattr(l, 'get_parent_info'):
+            print "\n".join(l.get_parent_info("FANCYLOGGER_GETLOGGER_DEBUG"))
         sys.stdout.flush()
     return l
 
