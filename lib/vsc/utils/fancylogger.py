@@ -76,6 +76,7 @@ Logging to a udp server:
 """
 
 from collections import namedtuple
+from future.utils import raise_with_traceback
 import inspect
 import logging
 import logging.handlers
@@ -326,7 +327,7 @@ class FancyLogger(logging.getLoggerClass()):
             exception = self.RAISE_EXCEPTION_CLASS
 
         self.RAISE_EXCEPTION_LOG_METHOD(fullmessage)
-        raise exception, message, tb
+        raise_with_traceback(exception(message))
 
     # pylint: disable=unused-argument
     def deprecated(self, msg, cur_ver, max_ver, depth=2, exception=None, log_callback=None, *args, **kwargs):
