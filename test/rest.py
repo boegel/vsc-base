@@ -29,11 +29,14 @@ Unit tests for the rest client.
 @author: Jens Timmerman (Ghent University)
 """
 import os
-from urllib2 import HTTPError
 
 from vsc.install.testing import TestCase
-
 from vsc.utils.rest import RestClient
+
+try:
+    from urllib2 import HTTPError
+except ImportError:
+    from urllib.request import HTTPError
 
 
 # the user who's repo to test

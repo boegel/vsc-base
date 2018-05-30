@@ -30,14 +30,12 @@ A class that can be used to generated options to python scripts in a general way
 @author: Jens Timmerman (Ghent University)
 """
 
-import ConfigParser
 import copy
 import difflib
 import inspect
 import operator
 import os
 import re
-import StringIO
 import sys
 import textwrap
 from optparse import OptionParser, OptionGroup, Option, Values
@@ -49,6 +47,15 @@ from vsc.utils.docs import mk_rst_table
 from vsc.utils.fancylogger import getLogger, setroot, setLogLevel, getDetailsLogLevels
 from vsc.utils.missing import shell_quote, nub
 from vsc.utils.optcomplete import autocomplete, CompleterOption
+
+try:
+    # Python 2
+    from StringIO import StringIO
+    import ConfigParser
+except ImportError:
+    # Python 3
+    from io import StringIO
+    from configparser import ConfigParser
 
 
 HELP_OUTPUT_FORMATS = ['', 'rst', 'short', 'config']
@@ -668,7 +675,7 @@ class ExtOptionParser(OptionParser):
     def check_help(self, fh):
         """Checks filehandle for help functions"""
         if self.help_to_string:
-            self.help_to_file = StringIO.StringIO()
+            self.help_to_file = StringIO()
         if fh is None:
             fh = self.help_to_file
 

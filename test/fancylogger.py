@@ -37,7 +37,6 @@ import re
 import sys
 import shutil
 
-from StringIO import StringIO
 import tempfile
 from unittest import TestLoader, main, TestSuite
 try:
@@ -52,6 +51,13 @@ except ImportError:
             def deco(fn):
                 return (lambda *args, **kwargs: True)
         return deco
+
+try:
+    # Python 2
+    from StringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import StringIO
 
 import coloredlogs
 
