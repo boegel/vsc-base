@@ -186,12 +186,19 @@ Colorize = namedtuple('Colorize', 'AUTO ALWAYS NEVER')('auto', 'always', 'never'
 
 
 APOCALYPTIC = 'APOCALYPTIC'
-# register new loglevelname
 logging.addLevelName(logging.CRITICAL * 2 + 1, APOCALYPTIC)
+
 # register QUIET, EXCEPTION and FATAL alias
-logging._levelNames['EXCEPTION'] = logging.ERROR
-logging._levelNames['FATAL'] = logging.CRITICAL
-logging._levelNames['QUIET'] = logging.WARNING
+if sys.version_info < (3, ):
+    # logging._levelNames no longer exists in Python 3
+    # logging.addLevelName is not a real replacement in Python 2 (it overwrites existing level names)
+    logging._levelNames['EXCEPTION'] = logging.ERROR
+    logging._levelNames['FATAL'] = logging.CRITICAL
+    logging._levelNames['QUIET'] = logging.WARNING
+else:
+    logging.addLevelName(logging.ERROR, 'EXCEPTION')
+    logging.addLevelName(logging.CRITICAL, 'FATAL')
+    logging.addLevelName(logging.WARNING, 'QUIET')
 
 
 # mpi rank support
