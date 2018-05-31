@@ -30,6 +30,7 @@ Tests for the vsc.utils.missing module.
 @author: Kenneth Hoste (Ghent University)
 """
 import sys
+from future.utils import with_metaclass
 from random import randint, seed
 
 from vsc.utils.missing import get_class_for, get_subclasses, get_subclasses_dict
@@ -112,7 +113,7 @@ def generate_random_dag():
     """
     myseed = randint(0, sys.maxint)
     seed(myseed)
-    print "testing with random seed", myseed
+    print("testing with random seed %s" % myseed)
     edge_probability = randint(10, 30)
     ranks = randint(3, 10)
     graph = {}
@@ -233,9 +234,8 @@ class TestMissing(TestCase):
         This is a use case from EasyBuild (see ConfigurationVariables class in easybuild.tools.config).
         """
 
-        class TestFrozenDictKnownKeysSingleton(FrozenDictKnownKeys):
+        class TestFrozenDictKnownKeysSingleton(with_metaclass(Singleton, FrozenDictKnownKeys)):
             """Inner test class derived from FrozenDictKnownKeys."""
-            __metaclass__ = Singleton
             KNOWN_KEYS = ['foo', 'foo2']
 
         td = TestFrozenDictKnownKeysSingleton({'foo': 'bar'})
