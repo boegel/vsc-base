@@ -43,10 +43,10 @@ def mk_rst_table(titles, columns):
     title_cnt, col_cnt = len(titles), len(columns)
     if title_cnt != col_cnt:
         msg = "Number of titles/columns should be equal, found %d titles and %d columns" % (title_cnt, col_cnt)
-        raise LengthNotEqualException, msg
+        raise LengthNotEqualException(msg)
     table = []
     tmpl = []
-    line= []
+    line = []
 
     # figure out column widths
     for i, title in enumerate(titles):

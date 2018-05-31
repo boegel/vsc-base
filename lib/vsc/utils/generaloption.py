@@ -30,14 +30,12 @@ A class that can be used to generated options to python scripts in a general way
 @author: Jens Timmerman (Ghent University)
 """
 
-import ConfigParser
 import copy
 import difflib
 import inspect
 import operator
 import os
 import re
-import StringIO
 import sys
 import textwrap
 from optparse import OptionParser, OptionGroup, Option, Values
@@ -49,6 +47,16 @@ from vsc.utils.docs import mk_rst_table
 from vsc.utils.fancylogger import getLogger, setroot, setLogLevel, getDetailsLogLevels
 from vsc.utils.missing import shell_quote, nub
 from vsc.utils.optcomplete import autocomplete, CompleterOption
+
+try:
+    # Python 2
+    from StringIO import StringIO
+    from ConfigParser import DEFAULTSECT, SafeConfigParser
+except ImportError:
+    # Python 3
+    from io import StringIO
+    from configparser import DEFAULTSECT
+    from configparser import ConfigParser as SafeConfigParser
 
 
 HELP_OUTPUT_FORMATS = ['', 'rst', 'short', 'config']
@@ -181,7 +189,7 @@ class ExtOption(CompleterOption):
     ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + EXTOPTION_EXTRA_OPTIONS
 
     TYPE_STRLIST = ['%s%s' % (name, klass) for klass in ['list', 'tuple'] for name in ['str', 'path']]
-    TYPE_CHECKER = dict([(x, check_str_list_tuple) for x in TYPE_STRLIST] + Option.TYPE_CHECKER.items())
+    TYPE_CHECKER = dict([(x, check_str_list_tuple) for x in TYPE_STRLIST] + list(Option.TYPE_CHECKER.items()))
     TYPES = tuple(TYPE_STRLIST + list(Option.TYPES))
     BOOLEAN_ACTIONS = ('store_true', 'store_false',) + EXTOPTION_LOG
 
@@ -346,7 +354,7 @@ class PassThroughOptionParser(OptionParser):
         """Extend optparse code with catch of unknown long options error"""
         try:
             OptionParser._process_long_opt(self, rargs, values)
-        except BadOptionError, err:
+        except BadOptionError as err:
             self.largs.append(err.opt_str)
 
     def _process_short_opts(self, rargs, values):
@@ -397,7 +405,7 @@ class PassThroughOptionParser(OptionParser):
 
 class ExtOptionGroup(OptionGroup):
     """An OptionGroup with support for configfile section names"""
-    RESERVED_SECTIONS = [ConfigParser.DEFAULTSECT]
+    RESERVED_SECTIONS = [DEFAULTSECT]
     NO_SECTION = ('NO', 'SECTION')
 
     def __init__(self, *args, **kwargs):
@@ -668,7 +676,7 @@ class ExtOptionParser(OptionParser):
     def check_help(self, fh):
         """Checks filehandle for help functions"""
         if self.help_to_string:
-            self.help_to_file = StringIO.StringIO()
+            self.help_to_file = StringIO()
         if fh is None:
             fh = self.help_to_file
 
@@ -908,7 +916,7 @@ class GeneralOption(object):
     CONFIGFILES_INIT = []  # initial list of defaults, overwritten by go_configfiles options
     CONFIGFILES_IGNORE = []
     CONFIGFILES_MAIN_SECTION = 'MAIN'  # sectionname that contains the non-grouped/non-prefixed options
-    CONFIGFILE_PARSER = ConfigParser.SafeConfigParser
+    CONFIGFILE_PARSER = SafeConfigParser
     CONFIGFILE_CASESENSITIVE = True
 
     METAVAR_DEFAULT = True  # generate a default metavar
@@ -920,7 +928,7 @@ class GeneralOption(object):
 
     VERSION = None  # set the version (will add --version)
 
-    DEFAULTSECT = ConfigParser.DEFAULTSECT
+    DEFAULTSECT = DEFAULTSECT
     DEFAULT_LOGLEVEL = None
     DEFAULT_CONFIGFILES = None
     DEFAULT_IGNORECONFIGFILES = None
@@ -1253,7 +1261,7 @@ class GeneralOption(object):
 
         try:
             (self.options, self.args) = self.parser.parse_args(options_list)
-        except SystemExit, err:
+        except SystemExit as err:
             self.log.debug("parseoptions: parse_args err %s code %s" % (err, err.code))
             if self.no_system_exit:
                 return
