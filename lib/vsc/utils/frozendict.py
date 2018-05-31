@@ -27,7 +27,7 @@ try:
     from UserDict import DictMixin
 except ImportError:
     # Python 3
-    from collections.abc import Mapping as DictMixin
+    DictMixin = dict
 
 
 # minor adjustments:
