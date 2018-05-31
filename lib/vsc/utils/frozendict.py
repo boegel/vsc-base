@@ -24,17 +24,15 @@ import operator
 
 try:
     # Python 2
-    from UserDict import DictMixin
+    from collections import Mapping
 except ImportError:
     # Python 3
-    from collections import MutableMapping as DictMixin
+    from collections.abc import Mapping
 
 
 # minor adjustments:
 # * renamed to FrozenDict
-# * deriving from DictMixin instead of collections.Mapping to make it Python 2.4 compatible
-#   see also http://docs.python.org/2/library/userdict.html#UserDict.DictMixin
-class FrozenDict(object, DictMixin):
+class FrozenDict(Mapping):
 
     def __init__(self, *args, **kwargs):
         self.__dict = dict(*args, **kwargs)
