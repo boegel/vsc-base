@@ -1,10 +1,23 @@
 language: python
 python:
-  - "2.6"
-  - "2.7"
+  - 2.6
+  - 2.7
+  - 3.5
+  - 3.6
 install:
   - easy_install vsc-install
+  # installing coloredlogs and future is only needed for the import tests
+  # this can be removed if only "python setup.py test" is used (since that auto-installs required dependencies)
+  - if [ "$(echo $TRAVIS_PYTHON_VERSION | cut -f1 -d.)" == '3' ]; then pip install coloredlogs future; fi
 script:
   # 'hpcugent' is a mandatory remote for setup.py to work (because of vsc-install)
   - git remote add hpcugent https://github.com/hpcugent/vsc-base.git
-  - python setup.py test
+  # only run part of the tests with Python 3 for now (until whole code base is Py3 compatible)
+  - if [ "$(echo $TRAVIS_PYTHON_VERSION | cut -f1 -d.)" == '3' ]; then
+        set -e;
+        export PYTHONPATH="$PWD/lib:$PYTHONPATH";
+        for mod in $(ls lib/vsc/utils/*.py | cut -f4 -d/ | sed 's/\.py$//g' | grep -v __init__); do echo; echo "+++ python -c 'import vsc.utils.$mod' +++"; echo; python -c "import vsc.utils.$mod"; done;
+        for mod in $(ls test/*.py | cut -f2 -d/ | sed 's/\.py$//g' | egrep -v '__init__|00-import'); do echo; echo "+++ python -c 'import test.$mod' +++"; echo; python -c "import test.$mod"; done;
+    else
+        python setup.py test;
+    fi;
