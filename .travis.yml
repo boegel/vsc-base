@@ -15,7 +15,7 @@ script:
         export PYTHONPATH="$PWD/lib:$PYTHONPATH";
         for mod in $(ls lib/vsc/utils/*.py | cut -f4 -d/ | sed 's/\.py$//g' | grep -v __init__); do echo; echo "+++ vsc.utils.$mod +++"; echo; python -c "import vsc.utils.$mod"; done;
         for mod in $(ls test/*.py | cut -f2 -d/ | sed 's/\.py$//g' | egrep -v '__init__|00-import'); do python -c "import test.$mod"; done;
-        python setup.py test -F 'dateandtime';
+        python setup.py test -F 'dateandtime|missing';
     else
         python setup.py test;
     fi;
