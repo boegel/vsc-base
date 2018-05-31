@@ -6,11 +6,15 @@ python:
   - "3.6"
 install:
   - easy_install vsc-install
+  - if [ "$(echo $TRAVIS_PYTHON_VERSION | cut -f1 -d.)" == '3' ]; then pip install coloredlogs future; fi
 script:
   # 'hpcugent' is a mandatory remote for setup.py to work (because of vsc-install)
   - git remote add hpcugent https://github.com/hpcugent/vsc-base.git
   # only run part of the tests with Python 3 for now (until whole code base is Py3 compatible)
   - if [ "$(echo $TRAVIS_PYTHON_VERSION | cut -f1 -d.)" == '3' ]; then
+        export PYTHONPATH="$PWD/lib:$PYTHONPATH";
+        for mod in $(ls lib/vsc/utils/*.py | cut -f4 -d/ | sed 's/\.py$//g' | grep -v __init__); do python -c "import vsc.utils.$mod"; done;
+        for mod in $(ls test/*.py | cut -f2 -d/ | sed 's/\.py$//g' | egrep -v '__init__|00-import'); do python -c "import test.$mod"; done;
         python setup.py test -F 'dateandtime';
     else
         python setup.py test;
